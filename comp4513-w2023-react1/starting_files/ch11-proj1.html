@@ -21,24 +21,31 @@
 /* 
 ------------------------------------------------------------------------------------------------------------------
 */
-class App extends React.Component {
+const App =() => {
+   const [movies,setMovies]= React.useState(movieData);
 
-    render() {
+  const updateData= (index,newValue)=>{
+     const copy = [...movies]
+     copy[index] = newValue
+     setMovies(copy)
+  }
+
+    
         return ( 
             <main className="container">
                 <section className="columns has-background-light">
-                <MovieList movies={ movieData }/>
+                <MovieList movies={ movies }/>
                 <div className="column is-half">
                     {
-                        movieData.map((movie)=>{
-                            return  <MovieForm movie={movie}    />
+                        movieData.map((movie,index)=>{
+                            return  <MovieForm movie={movie} onChange={(updatedMovie) => updateData(index,updatedMovie)}/>
                         })
                     }       
                 </div>
                 </section>
             </main>                
         );
-    }
+
 }
 
 /* 
@@ -52,25 +59,32 @@ class MovieForm extends React.Component {
     };
   }
   textChanges(event){
-    console.log(event.target.value)
-    const { name, value } = event.target;
-    this.setState({
-        [name]: value
-    })
+    const{name,value}= event.target;
+    console.log(name,value)
+    this.setState(prevState => ({
+        
+    movie: {
+      ...prevState.movie,
+      //so i want to change whatever name is being clicked
+      [name]: value
+    }
+  }));
+    
+  }
+  handleSubmit(event) {
+    event.preventDefault();
+    console.log("test",this.state.movie)
+    this.props.onChange(this.state.movie);
+    
   }
 
 
     render() {
-        const {movie} = this.props;
-        function saveChanges(){
-            const[title,setTitle]=React.useState("")
-        }
-        {console.log("this",this.state.movie.title)}
-        
+        const {movie} = this.props;       
 
         return (
             
-            <form className="panel has-background-grey-lighter" data-key={movie.id}>
+            <form className="panel has-background-grey-lighter" data-key={movie.id} onChange={(e) => this.handleSubmit(e)}>
 
                 <div className="field is-horizontal" >
                     <div className="field-label is-normal">
@@ -117,15 +131,16 @@ class MovieList extends React.Component {
 
 
 render() {
-    const {movies} = this.props;
-    console.log(movies)
+    
+    const {movies}= this.props;
+    
     return (
         
         <div className="column is-half">
             <ul className="columns is-multiline">
                 {movies.map((movie)=>{
                     console.log(movie)
-                    return <SingleMovie movie={movie} /> 
+                    return <SingleMovie movie={movie} onUpdate={this.updateMovie} /> 
                 })}
                 
             </ul>   
